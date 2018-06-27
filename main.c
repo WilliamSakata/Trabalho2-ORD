@@ -1,13 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define maxkey 4
+#define minkey maxkey/2
+#define nokey '@'
+#define erro -10
 
-struct btpage{
-    short keycount;
+typedef struct {
+    short keycout;
     char key[maxkey];
-    short child[maxkey + 1];
-} page;
+    short child[maxkey+1];
+} pagina;
+
 
 int main(){
     FILE *chaves, *arvore;
@@ -15,16 +20,40 @@ int main(){
 
     chaves = fopen("chaves.txt", "r");
     arvore = fopen("arvore.txt", "w+");
-
-
 }
 
-int search(int rrn, int key, int found_rrn, int found_pos){
+bool busca(int rrn, int key, int found_rrn, int found_pos){
+    FILE *chaves;
+    pagina *pag;
+    int pos=0 ;
+    bool found = false;
+
+    chaves = fopen("chaves.txt", "r");
+
     if(rrn = NULL)
         return 0;
 
+    else{
+        fseek(chaves, (rrn* sizeof(pagina)+4), SEEK_SET);
+        fread(pag, sizeof(pagina), 1, chaves);
+
+        while(found == false && pag->key <= 4){
+            if(pag->key[pos]==key)
+                found = true;
+            pos++;
+        }
+
+        if(found){
+            found_rrn = rrn;
+            found_pos = pos;
+            return true;
+        } else{
+            return busca(pag->child[pos], key, found_rrn, found_pos);
+        }
+    }
 }
 
+int insere(int rrn_atual, int key, )
 
 
 
