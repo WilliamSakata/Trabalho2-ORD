@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define maxkey 4
-#define minkey maxkey/2
+#define maxchave 4
+#define minchave maxkey/2
 #define nokey '@'
 #define erro -10
 #define true 1
@@ -12,14 +12,14 @@
 
 typedef struct {
     short keycout;
-    char key[maxkey];
-    short child[maxkey+1];
+    char key[maxchave];
+    short child[maxchave+1];
 } pagina;
 
 
 int main(){
     FILE *chaves, *arvore;
-    int found_rrn, found_pos;
+    int found_rrn, found_pos, promo, raiz, rrn_pro;
 
     chaves = fopen("chaves.txt", "r");
     arvore = fopen("arvore.txt", "w+");
@@ -55,7 +55,7 @@ int busca(int rrn, int key, int found_rrn, int found_pos, FILE *chaves){
 
 int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves){ //da pra retornar o ponteiro pro arquivo?
     pagina *pag;
-    int pos=0;
+    int pos=0, retorno, fit, i=0 ,j;
 
     if(rrn_atual == NULL){
         chave_pro = key;
@@ -74,9 +74,43 @@ int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves)
             return erro;
         }
 
-        return insere(pag->child[pos], key, ) //como que retorna o rrn_pro e o chv_pro
+        retorno = insere(pag->child[pos], key, rrn_pro, chv_pro); //como que retorna o rrn_pro e o chv_pro
     }
+    if(retorno == erro || retorno == sem_promo){
+        return retorno;
+    } else{
+        if(pag->keycout < maxchave){
 
+            while(pag->key[i] < chv_pro){
+                i++;
+            }
+
+            for(j=3;j>i;j--){
+                pag->key[j]=pag->key[j-1];
+            }
+
+            pag->key = chv_pro;
+
+            for(j=4; j>i+1; j--){
+                pag->child[j] = pag->child[j-1];
+            }
+            pag->child = rrn_pro;
+
+            fseek(chaves, rrn_atual, SEEK_SET+4);
+
+            fwrite(pag, sizeof(pag), 1, chaves);
+
+            return sem_promo;
+        } else{
+            divide(chv_pro, rrn_pro, pag, chave_pro, filho_d_pro, novavpag);
+
+            fseek(chaves, rrn_atual, SEEK_SET+4);
+
+            fwrite(pag, sizeof(pag), 1, chaves);
+
+
+        }
+    }
 
 }
 
