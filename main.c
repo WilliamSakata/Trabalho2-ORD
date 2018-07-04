@@ -108,7 +108,7 @@ int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves)
 
             return sem_promo;
         } else{
-            divide(chv_pro, rrn_pro, pag, chave_pro, filho_d_pro, novapag);
+            divide(chv_pro, rrn_pro, pag, chave_pro, filho_d_pro, novapag); //perguntar sobre a novapag, onde cria
 
             fseek(chaves, rrn_atual, SEEK_SET+4);
             fwrite(pag, sizeof(pag), 1, chaves);
