@@ -16,6 +16,12 @@ typedef struct {
     short child[maxchave+1];
 } pagina;
 
+typedef struct {
+    short keycount;
+    char key[maxchave+1];
+    short child[maxchave+2];
+} pagaux;
+
 
 int main(){
     FILE *chaves, *arvore;
@@ -55,7 +61,7 @@ int busca(int rrn, int key, int found_rrn, int found_pos, FILE *chaves){
 
 int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves){ //da pra retornar o ponteiro pro arquivo?
     pagina *pag;
-    int pos=0, retorno, fit, i=0 ,j;
+    int pos=0, retorno, fit, i=0 ,j, rrn_pro = filho_d_pro, chv_pro = chave_pro;
 
     if(rrn_atual == NULL){
         chave_pro = key;
@@ -74,7 +80,7 @@ int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves)
             return erro;
         }
 
-        retorno = insere(pag->child[pos], key, rrn_pro, chv_pro); //como que retorna o rrn_pro e o chv_pro
+        retorno = insere(pag->child[pos], key, rrn_pro, chv_pro, chaves); //como que retorna o rrn_pro e o chv_pro
     }
     if(retorno == erro || retorno == sem_promo){
         return retorno;
@@ -89,12 +95,12 @@ int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves)
                 pag->key[j]=pag->key[j-1];
             }
 
-            pag->key = chv_pro;
+            pag->key[i] = chv_pro;
 
             for(j=4; j>i+1; j--){
                 pag->child[j] = pag->child[j-1];
             }
-            pag->child = rrn_pro;
+            pag->child[i+1] = rrn_pro;
 
             fseek(chaves, rrn_atual, SEEK_SET+4);
 
@@ -102,15 +108,38 @@ int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves)
 
             return sem_promo;
         } else{
-            divide(chv_pro, rrn_pro, pag, chave_pro, filho_d_pro, novavpag);
+            divide(chv_pro, rrn_pro, pag, chave_pro, filho_d_pro, novapag);
 
             fseek(chaves, rrn_atual, SEEK_SET+4);
-
             fwrite(pag, sizeof(pag), 1, chaves);
 
-
+            fseek(chaves, filho_d_pro, SEEK_SET+4);
+            fwrite(novapag, sizeof(novapag), 1, chaves);
         }
     }
+}
+
+void divide(int chave_i, int rrn_i, pagina pag, int chave_pro, int filho_d_pro, pagina novapag){
+    pagaux pagaux1;
+    pagina novapag1;
+    int i=0, j=0;
+
+    pagaux1 = pag;
+
+    while(pagaux1.key[i] < chave_i){
+        i++;
+    }
+    for(j=4;j>i;j--){
+        pagaux1.key[j] = pagaux1.key[j-1];
+    }
+
+    pagaux1.key[i] = chave_i;
+
+    for(j=5; j>i+1; j--){
+        pagaux1.child[j] = pagaux1.child[j-1];
+    }
+    pagaux1.child[i+1] = rrn_i;
+
 
 }
 
