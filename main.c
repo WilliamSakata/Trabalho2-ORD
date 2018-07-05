@@ -108,7 +108,7 @@ int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves)
 
             return sem_promo;
         } else{
-            divide(chv_pro, rrn_pro, pag, chave_pro, filho_d_pro, novapag); //perguntar sobre a novapag, onde cria
+            divide(chv_pro, rrn_pro, pag, chave_pro, filho_d_pro, novapag, chaves); //perguntar sobre a novapag, onde cria
 
             fseek(chaves, rrn_atual, SEEK_SET+4);
             fwrite(pag, sizeof(pag), 1, chaves);
@@ -119,10 +119,10 @@ int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves)
     }
 }
 
-void divide(int chave_i, int rrn_i, pagina pag, int chave_pro, int filho_d_pro, pagina novapag){
+void divide(int chave_i, int rrn_i, pagina pag, int chave_pro, int filho_d_pro, pagina novapag, FILE *chaves){
     pagaux pagaux1;
     pagina novapag1;
-    int i=0, j=0;
+    int i=0, j=0, rrn_nova;
 
     pagaux1 = pag;
 
@@ -140,6 +140,10 @@ void divide(int chave_i, int rrn_i, pagina pag, int chave_pro, int filho_d_pro, 
     }
     pagaux1.child[i+1] = rrn_i;
 
+    chave_pro = pagaux1.key[2];
+
+    fseek(chaves, 0, );
+    filho_d_pro =
 
 }
 
