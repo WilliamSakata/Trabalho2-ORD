@@ -142,8 +142,18 @@ void divide(int chave_i, int rrn_i, pagina pag, int chave_pro, int filho_d_pro, 
 
     chave_pro = pagaux1.key[2];
 
-    fseek(chaves, 0, );
-    filho_d_pro =
+    fseek(chaves, 0, SEEK_END);
+
+
+    filho_d_pro = ((ftell(chaves)/ sizeof(pagina)) - 4);
+
+    for(j=0; j<i;j++){
+        pag.key[j] = pagaux1.key[j];
+    }
+
+    for(j=i;j<=5;j++){
+        novapag1.key[j] = pagaux1.key[j];
+    }
 
 }
 
