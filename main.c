@@ -61,12 +61,13 @@ int busca(int rrn, int key, int found_rrn, int found_pos, FILE *chaves){
 
 int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves){ //da pra retornar o ponteiro pro arquivo?
     pagina *pag;
+    pagina *novapag;
     int pos=0, retorno, fit, i=0 ,j, rrn_pro = filho_d_pro, chv_pro = chave_pro;
 
     if(rrn_atual == NULL){
         chave_pro = key;
         filho_d_pro = NULL;
-        return promocao;
+        retorno = promocao;
     } else{
         fseek(chaves, rrn_atual+4, SEEK_SET);
         fread(pag, sizeof(pagina), 1, chaves);
@@ -77,7 +78,7 @@ int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves)
 
         if(pos < 4){
             printf("\nError!!! Chave Duplicada!!");
-            return erro;
+            retorno = erro;
         }
 
         retorno = insere(pag->child[pos], key, rrn_pro, chv_pro, chaves); //como que retorna o rrn_pro e o chv_pro
@@ -119,28 +120,28 @@ int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves)
     }
 }
 
-void divide(int chave_i, int rrn_i, pagina pag, int chave_pro, int filho_d_pro, pagina novapag, FILE *chaves){
-    pagaux pagaux1;
-    pagina novapag1;
+void divide(int chave_i, int rrn_i, pagina *pag, int chave_pro, int filho_d_pro, pagina *novapag, FILE *chaves){
+    pagaux *pagaux1;
+    pagina *novapag1;
     int i=0, j=0, rrn_nova;
 
     pagaux1 = pag;
 
-    while(pagaux1.key[i] < chave_i){
+    while(pagaux1->key[i] < chave_i){
         i++;
     }
     for(j=4;j>i;j--){
-        pagaux1.key[j] = pagaux1.key[j-1];
+        pagaux1->key[j] = pagaux1->key[j-1];
     }
 
-    pagaux1.key[i] = chave_i;
+    pagaux1->key[i] = chave_i;
 
     for(j=5; j>i+1; j--){
-        pagaux1.child[j] = pagaux1.child[j-1];
+        pagaux1->child[j] = pagaux1->child[j-1];
     }
-    pagaux1.child[i+1] = rrn_i;
+    pagaux1->child[i+1] = rrn_i;
 
-    chave_pro = pagaux1.key[2];
+    chave_pro = pagaux1->key[2];
 
     fseek(chaves, 0, SEEK_END);
 
@@ -148,11 +149,11 @@ void divide(int chave_i, int rrn_i, pagina pag, int chave_pro, int filho_d_pro, 
     filho_d_pro = ((ftell(chaves)/ sizeof(pagina)) - 4);
 
     for(j=0; j<i;j++){
-        pag.key[j] = pagaux1.key[j];
+        pag->key[j] = pagaux1->key[j];
     }
 
     for(j=i;j<=5;j++){
-        novapag1.key[j] = pagaux1.key[j];
+        novapag1->key[j] = pagaux1->key[j];
     }
 
 }
