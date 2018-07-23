@@ -155,10 +155,6 @@ void divide(int chave_i, int rrn_i, pagina *pag, int *chave_pro, int *filho_d_pr
     pagina *novapag1;
     int i=0, j=0, rrn_nova;
 
-    //pagaux e pagina são tipos diferentes, portanto vc não pode fazer essa atribuicao
-    //pagaux1 = pag;
-    //para copiar os elementos de pag para pagaux1, tem que passar um por um
-
     while(pagaux1->key[i] < chave_i){
         i++;
     }
