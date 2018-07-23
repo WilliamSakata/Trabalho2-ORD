@@ -1,22 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
-//************* ALTERACAO *******************
-// Alterei todos os nomes usados nos defines para caixa alta
-// Com caixa baixa estava dando problema no true/false
+
 #define MAXCHAVE 4
-#define MINCHAVE MAXCHAVE/2
-#define NOKEY '@'
+
 #define ERRO -10
 #define TRUE 1
 #define FALSE 0
-//************* ALTERACAO *******************
-//#define promocao = 10
-//#define sem_promo = 5
 #define PROMOCAO 10
 #define SEMPROMO 5
-// Esse NIL não é a mesma coisa que NULL
 #define NIL -1
-//*******************************************
+
 
 typedef struct {
     short keycount;
@@ -30,123 +23,132 @@ typedef struct {
     short child[MAXCHAVE+2];
 } pagaux;
 
-//************* ALTERACAO *******************
-// Inclui os protótipos das funções
 int busca(int rrn, int key, int found_rrn, int found_pos, FILE *chaves);
-int insere(int rrn_atual, int key, int *filho_d_pro, int *chave_pro, FILE *chaves);
+int insere(int rrn_atual, int key, int *filho_d_pro, int *chave_pro, FILE *chaves, FILE *arvore);
 void divide(int chave_i, int rrn_i, pagina *pag, int *chave_pro, int *filho_d_pro, pagina *novapag, FILE *chaves);
-//*******************************************
+int search_node(int key, pagina pag, short pos);
 
 
 int main(){
     FILE *chaves, *arvore;
-    int found_rrn, found_pos, promo, raiz, rrn_pro;
+    int found_rrn, found_pos, promo, raiz, rrn_pro, key, quant_chaves, i;
+    int *filho_d_pro, *chave_pro;
+    pagina *pag;
 
     chaves = fopen("chaves.txt", "r");
     arvore = fopen("arvore.txt", "w+");
+
+    raiz = 1;
+
+    fread(quant_chaves, sizeof(int), 1, chaves);
+
+    fread(key, sizeof(char), 1, chaves);
+
+    fwrite(raiz, sizeof(short), 1, arvore);
+
+    insere(raiz, key, *filho_d_pro, *chave_pro, chaves, arvore);
+
+    for(i=0;i<quant_chaves-2; i++){
+        if(insere(raiz, key, *filho_d_pro, *chave_pro, chaves, arvore));
+    }
+}
+
+
+int search_node(int key, pagina pag, short pos){
+    int i;
+
+    for(i=0; i<pag.keycount && key>pag.key[i];i++);
+
+    pos = i;
+
+    if(pos < pag.keycount && key == pag.key[pos])
+        return TRUE;
+    else
+        return FALSE;
 }
 
 int busca(int rrn, int key, int found_rrn, int found_pos, FILE *chaves){
     pagina *pag;
-    int pos=0, found = FALSE ;
+    int pos=0, found = FALSE, i ;
 
-    if(rrn = NIL)
+    if(rrn == NIL)
         return 0;
-        //*******************************************
-    else{
-        fseek(chaves, (rrn* sizeof(pagina)+4), SEEK_SET);
+
+    else {
+        fseek(chaves, (rrn * sizeof(pagina) + 4), SEEK_SET);
         fread(pag, sizeof(pagina), 1, chaves);
 
-        //************* ALTERACAO *******************
-        // Resolvi o erro de compilação, mas esse looping não vai funcionar direito
-        //while(!found && pag->key <= 4){
-        while(!found && pag->keycount <= 4){
-            if(pag->key[pos] == key)
-                found = TRUE;
-            pos++;
+        while (i < pag->keycount && key > pag->key[i]){
+            i++;
         }
-        //*******************************************
 
-        if(found){
-            found_rrn = rrn;
-            found_pos = pos;
+        pos = i;
+
+        if (pos < pag->keycount && key * pag->key[pos])
             return TRUE;
-        } else{
-            return busca(pag->child[pos], key, found_rrn, found_pos, chaves);
-        }
+        else
+            return FALSE;
     }
 }
 
-//************* ALTERACAO *******************
-// filho_d_pro e chave_pro têm que ser ponteiros, pois eles são parâmetros de retorno
-//int insere(int rrn_atual, int key, int filho_d_pro, int chave_pro, FILE *chaves)
-int insere(int rrn_atual, int key, int *filho_d_pro, int *chave_pro, FILE *chaves){ //da pra retornar o ponteiro pro arquivo?
-    // Se vc declarar pag e novapag como ponteiros, vai ter que usar malloc para alocar espaço para elas
-    // O mais fácil seria declarar como var normal e passar o endereço quando precisar ser ponteiro
-    pagina *pag;
-    pagina *novapag;
-    //Arrumei o erro de compilação, mas essa inicialização do rrn_pro e do chv_pro não vai dar certo
-    //int pos=0, retorno, fit, i=0 ,j, rrn_pro = filho_d_pro, chv_pro = chave_pro;
-    int pos=0, retorno, fit, i=0 ,j, rrn_pro = *filho_d_pro, chv_pro = *chave_pro;
+int insere(int rrn_atual, int key, int *filho_d_pro, int *chave_pro, FILE *chaves, FILE *arvore){
+    pagina pag;
+    pagina novapag;
+
+    int pos=0, retorno, fit, i=0 ,j, rrn_pro = *filho_d_pro, chv_pro = *chave_pro, found, found_rrn, found_pos;
 
     if(rrn_atual == NIL){
         *chave_pro = key;
-        //filho_d_pro = NULL;
         *filho_d_pro = NIL;
         retorno = PROMOCAO;
 
-    } else{
-        fseek(chaves, rrn_atual+4, SEEK_SET);
-        fread(pag, sizeof(pagina), 1, chaves);
-
-        while(key != pag->key[pos] && pag->keycount <= 4){
-            pos++;
-        }
-
-        if(pos < 4){
-            printf("\nError!!! Chave Duplicada!!");
-            retorno = ERRO;
-        }
-
-        retorno = insere(pag->child[pos], key, &rrn_pro, &chv_pro, chaves); //como que retorna o rrn_pro e o chv_pro
     }
-    if(retorno == ERRO || retorno == SEMPROMO){
-        return retorno;
-    } else{
-        if(pag->keycount < MAXCHAVE){
+    found = busca(rrn_atual,key, found_rrn, found_pos, chaves);
 
-            while(pag->key[i] < chv_pro){
+    if(found){
+        printf("\nErro!! Chave Duplicada\n");
+        retorno = ERRO;
+    }
+
+    retorno = insere(pag.child[pos], key, &rrn_pro, &chv_pro, chaves, arvore);
+
+    if(retorno == ERRO || retorno == SEMPROMO)
+        return retorno;
+    else
+        if(pag.keycount < MAXCHAVE){
+            while(pag.key[i] < chv_pro){
                 i++;
             }
 
             for(j=3;j>i;j--){
-                pag->key[j]=pag->key[j-1];
+                pag.key[j]=pag.key[j-1];
             }
 
-            pag->key[i] = chv_pro;
+            pag.key[i] = chv_pro;
 
             for(j=4; j>i+1; j--){
-                pag->child[j] = pag->child[j-1];
+                pag.child[j] = pag.child[j-1];
             }
-            pag->child[i+1] = rrn_pro;
+            pag.child[i+1] = rrn_pro;
 
             fseek(chaves, rrn_atual, SEEK_SET+4);
 
-            fwrite(pag, sizeof(pag), 1, chaves);
+            fwrite(&pag, sizeof(pag), 1, chaves);
 
             return SEMPROMO;
         } else{
 
-            divide(chv_pro, rrn_pro, pag, chave_pro, filho_d_pro, novapag, chaves);
+            divide(chv_pro, rrn_pro, &pag, chave_pro, filho_d_pro, &novapag, chaves);
 
             fseek(chaves, rrn_atual, SEEK_SET+4);
-            fwrite(pag, sizeof(pag), 1, chaves);
+            fwrite(&pag, sizeof(pag), 1, chaves);
 
             fseek(chaves, *filho_d_pro, SEEK_SET+4);
-            fwrite(novapag, sizeof(novapag), 1, chaves);
+            fwrite(&novapag, sizeof(novapag), 1, arvore);
         }
     }
-}
+
+
 
 void divide(int chave_i, int rrn_i, pagina *pag, int *chave_pro, int *filho_d_pro, pagina *novapag, FILE *chaves){
     pagaux *pagaux1;
